@@ -17,7 +17,7 @@ function getId(raw) {
 	try {
 		return new ObjectId(raw);
 	} catch (error) { 
-		return ''
+		return '';
 	}
 }
 
@@ -51,7 +51,7 @@ app.get('/cars/:id',  (req, res) => {
 			res.send({error: 'Not found'});
 			return;
 		}
-		res.send(car)
+		res.send(car);
 		client.close();
 	});
 })
@@ -59,7 +59,22 @@ app.get('/cars/:id',  (req, res) => {
 
 // Delete specified car
 app.delete('/cars/:id',  (req, res) => { 
-	
+	const id = getId(req.params.id);
+	if (!id) {
+		res.send({error: 'Invalid id'});
+		return;
+	}
+	const client = getClient();
+	client.connect(async err => {
+		const collection = client.db("taxi_app").collection("cars");
+		const result = await collection.deleteOne({_id: id});
+		if (!result.deletedCount) {
+			res.send({error: 'Not found'});
+			return;
+		}
+		res.send({id: id});
+		client.close();
+	});
 })
 
 
