@@ -96,7 +96,6 @@ app.put('/cars/:id', bodyParser.json(), (req, res) => {
 	client.connect(async err => {
 		const collection = client.db("taxi_app").collection("cars");
 		const result = await collection.findOneAndUpdate({_id: id}, {$set: updatedCar}, {returnDocument: "after"});
-		console.log(result.value);
 		if (!result.ok) {
 			res.send({error: 'Not found'});
 			return;
@@ -130,7 +129,31 @@ app.post('/cars', bodyParser.json(), (req, res) => {
 })
 
 app.post('/trips', bodyParser.json(), (req, res) => {  
-	
+	const newTrip = {
+		numberOfMinutes: req.body.numberOfMinutes,
+		date: Math.floor(Date.now() / 1000)
+	};
+
+	const id = getId(req.body.carId);
+	if (!id) {
+		res.send({error: 'Invalid id'});
+		return;
+	}
+	const client = getClient();
+	client.connect(async err => {
+		const collection = client.db("taxi_app").collection("cars");
+		const result = await collection.findOneAndUpdate(
+			{_id: id},
+			{$push: {trips: newTrip}},
+			{returnDocument: "after"}
+		);
+		if (!result.ok) {
+			res.send({error: 'Not found'});
+			return;
+		}
+		res.send(result.value);
+		client.close();
+	});
 });
 
 
