@@ -95,15 +95,15 @@ app.put('/cars/:id', bodyParser.json(), (req, res) => {
 	const client = getClient();
 	client.connect(async err => {
 		const collection = client.db("taxi_app").collection("cars");
-		const result = await collection.updateOne({_id: id}, {$set: updatedCar});
-		if (!result.modifiedCount) {
+		const result = await collection.findOneAndUpdate({_id: id}, {$set: updatedCar}, {returnDocument: "after"});
+		console.log(result.value);
+		if (!result.ok) {
 			res.send({error: 'Not found'});
 			return;
 		}
-		res.send(updatedCar);
+		res.send(result.value);
 		client.close();
 	});
-	
 })
 
 
@@ -128,6 +128,10 @@ app.post('/cars', bodyParser.json(), (req, res) => {
 		client.close();
 	});
 })
+
+app.post('/trips', bodyParser.json(), (req, res) => {  
+	
+});
 
 
 app.listen(3000);
