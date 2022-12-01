@@ -23,6 +23,14 @@ function getId(raw) {
 }
 
 
+const path = require('path');
+
+app.use(express.static('public'))
+
+app.get('/', (req, res) => { 
+	res.sendFile(path.join(__dirname, 'views', 'home.html'))
+})
+
 
 // Get all cars
 app.get('/cars', (req, res) => { 
@@ -30,7 +38,7 @@ app.get('/cars', (req, res) => {
 
 	client.connect(async err => {
 		const collection = client.db("taxi_app").collection("cars");
-		const cars = await collection.find().toArray();
+		const cars = await collection.find({licenseNumber: {$eq: ''}}).toArray();
 		res.send(cars)
 		client.close();
 	});
