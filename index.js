@@ -38,7 +38,14 @@ app.get('/cars', (req, res) => {
 
 	client.connect(async err => {
 		const collection = client.db("taxi_app").collection("cars");
-		const cars = await collection.find({licenseNumber: {$eq: ''}}).toArray();
+		// const cars = await collection.find({hourlyRate: {$eq: 'ABC-123'}}).toArray();
+		// const cars = await collection.find({hourlyRate: {$gt: 1000}, hourlyRate: {$lt: 4000}}).toArray();
+		//const cars = await collection.find({name: {$in: ['Audi RS']}}).toArray();
+		const cars = await collection.find(req.query.params)
+		.limit(1)
+		.skip(0)
+		.sort({hourlyRate: 1})
+		.toArray()
 		res.send(cars)
 		client.close();
 	});
@@ -48,7 +55,7 @@ app.get('/cars', (req, res) => {
 // Get car by ID
 app.get('/cars/:id',  (req, res) => { 
 	const id = getId(req.params.id);
-	if (!id) {
+	if (!id) {	
 		res.send({error: 'Invalid id'});
 		return;
 	}
